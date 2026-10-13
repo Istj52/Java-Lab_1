@@ -103,7 +103,7 @@ public final class MatrixMath {
     private static Matrix inverse(Matrix a) {
         int n = a.getRows();
         if (n != a.getCols()) {
-            throw new IllegalArgumentException("Матрица должна быть квадратная");
+            throw new IllegalArgumentException("Матрица должна быть квадратной");
         }
         Matrix aug = new Matrix(n, 2 * n);
         for (int i = 0; i < n; ++i)
