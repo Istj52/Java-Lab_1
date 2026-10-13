@@ -2,6 +2,7 @@ import complex.Complex;
 import matrix.Matrix;
 import matrix.MatrixMath;
 
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Main {
@@ -36,11 +37,16 @@ public class Main {
         }
         while (true)
         {
-            int operation = scanner.nextInt();
-            if (operation >= 0 && operation < ops.length) {
-                return ops[operation];
+            try {
+                int operation = scanner.nextInt();
+                if (operation >= 0 && operation < ops.length) {
+                    return ops[operation];
+                }
+                System.out.println("Недопустимое значение, попробуйте снова");
+            } catch (InputMismatchException e) {
+                scanner.nextLine();
+                System.out.println("Недопустимый формат, попробуйте снова");
             }
-            System.out.println("Недопустимое значение, попробуйте снова");
         }
     }
 
@@ -91,28 +97,50 @@ public class Main {
 
     private static Matrix createMatrix(Scanner scanner) {
         while (true) {
-            System.out.print("Введите количество строк: ");
-            int rows = scanner.nextInt();
-            System.out.print("Введите количество столбцов: ");
-            int cols = scanner.nextInt();
+            int rows;
+            while (true) {
+                System.out.print("Введите количество строк: ");
+                try {
+                    rows = scanner.nextInt();
+                    break;
+                } catch (InputMismatchException e) {
+                    scanner.nextLine();
+                    System.out.println("Недопустимый формат, попробуйте снова");
+                }
+            }
+            int cols;
+            while (true) {
+                System.out.print("Введите количество столбцов: ");
+                try {
+                    cols = scanner.nextInt();
+                    break;
+                } catch (InputMismatchException e) {
+                    scanner.nextLine();
+                    System.out.println("Недопустимый формат, попробуйте снова");
+                }
+            }
             if (rows > 0 && cols > 0)
             {
-                try {
-                    Matrix m = new Matrix(rows, cols);
-                    System.out.println("Введите элементы матрицы:");
-                    for (int i = 0; i < rows; ++i) {
-                        for (int j = 0; j < cols; ++j) {
-                            System.out.print("[" + i + "][" + j + "] (real, im): ");
-                            double real = scanner.nextDouble();
-                            double im = scanner.nextDouble();
-                            m.set(i, j, new Complex(real, im));
+                Matrix m = new Matrix(rows, cols);
+                System.out.println("Введите элементы матрицы:");
+                for (int i = 0; i < rows; ++i) {
+                    for (int j = 0; j < cols; ++j) {
+                        double real, im;
+                        while (true) {
+                            try {
+                                System.out.print("[" + i + "][" + j + "] real im: ");
+                                real = scanner.nextDouble();
+                                im = scanner.nextDouble();
+                                break;
+                            } catch (InputMismatchException e) {
+                                scanner.nextLine();
+                                System.out.println("Недопустимый формат, попробуйте снова");
+                            }
                         }
+                        m.set(i, j, new Complex(real, im));
                     }
-                    return m;
-                } catch (IllegalArgumentException e) {
-                    System.out.println("Ошибка: " + e.getMessage());
-                    System.out.println("Попробуйте снова");
                 }
+                return m;
             }
             else {
                 System.out.println("Количество строк и столбцов должно быть положительным");

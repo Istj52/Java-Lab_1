@@ -30,4 +30,30 @@ public final class Matrix {
     public int getCols() {
         return cols;
     }
+
+    @Override
+    public String toString () {
+        String[][] result = new String[rows][cols];
+        int[] width = new int[cols];
+        String sep = "   ";
+        for (int i = 0; i < rows; ++i) {
+            for (int j = 0; j < cols; ++j) {
+                result[i][j] = String.valueOf(matrix[i][j]);
+                width[j] = Math.max(width[j], result[i][j].length());
+            }
+        }
+        StringBuilder row = new StringBuilder();
+        for (int i = 0; i < rows; ++i) {
+            row.append("[");
+            for (int j = 0; j < cols; ++j) {
+                int padding = width[j] - result[i][j].length();
+                if (j > 0) {
+                    row.append(sep);
+                }
+                row.repeat(" ", padding).append(result[i][j]);
+            }
+            row.append("]\n");
+        }
+        return row.toString();
+    }
 }
