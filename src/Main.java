@@ -10,20 +10,24 @@ public class Main {
     public static void main(String[] args) throws InterruptedException {
         Scanner scanner = new Scanner(System.in);
         while (true) {
-            Operation operation = askOperation(scanner);
-            switch (operation) {
-                case EXIT: {
-                    return;
+            try {
+                Operation operation = askOperation(scanner);
+                switch (operation) {
+                    case EXIT: {
+                        return;
+                    }
+                    case DETERMINANT: {
+                        System.out.println("Детерминант = " + executeScalarOperation(scanner));
+                        Thread.sleep(1000);
+                        break;
+                    }
+                    default: {
+                        System.out.println(executeMatrixOperation(scanner, operation));
+                        Thread.sleep(1000);
+                    }
                 }
-                case DETERMINANT: {
-                    System.out.println("Детерминант = " + executeScalarOperation(scanner));
-                    Thread.sleep(1000);
-                    break;
-                }
-                default: {
-                    System.out.println(executeMatrixOperation(scanner, operation));
-                    Thread.sleep(1000);
-                }
+            } catch (MenuRequestedException e) {
+                System.out.println("Возврат в главное меню");
             }
         }
     }
@@ -32,9 +36,12 @@ public class Main {
         EXIT, ADDITION, MULTIPLICATION, DIVISION, TRANSPOSE, DETERMINANT
     }
 
+    private static class MenuRequestedException extends RuntimeException {}
+
+
     private static Operation askOperation(Scanner scanner) {
         Operation[] ops = Operation.values();
-        System.out.println("Введите номер операции:");
+        System.out.println("Введите номер операции (вы сможете вернуться сюда в любой момент, введя q):");
         for (Operation op : ops) {
             System.out.println(op.name() + " (" + op.ordinal() + ")");
         }
@@ -47,7 +54,10 @@ public class Main {
                 }
                 System.out.println("Недопустимое значение, попробуйте снова");
             } catch (InputMismatchException e) {
-                scanner.nextLine();
+                String input = scanner.nextLine();
+                if (input.trim().equals("q")) {
+                    throw new MenuRequestedException();
+                }
                 System.out.println("Недопустимый формат, попробуйте снова");
             }
         }
@@ -117,7 +127,10 @@ public class Main {
                     rows = scanner.nextInt();
                     break;
                 } catch (InputMismatchException e) {
-                    scanner.nextLine();
+                    String input = scanner.nextLine();
+                    if (input.trim().equals("q")) {
+                        throw new MenuRequestedException();
+                    }
                     System.out.println("Недопустимый формат, попробуйте снова");
                 }
             }
@@ -128,7 +141,10 @@ public class Main {
                     cols = scanner.nextInt();
                     break;
                 } catch (InputMismatchException e) {
-                    scanner.nextLine();
+                    String input = scanner.nextLine();
+                    if (input.trim().equals("q")) {
+                        throw new MenuRequestedException();
+                    }
                     System.out.println("Недопустимый формат, попробуйте снова");
                 }
             }
@@ -154,7 +170,10 @@ public class Main {
                         im = scanner.nextDouble();
                         break;
                     } catch (InputMismatchException e) {
-                        scanner.nextLine();
+                        String input = scanner.nextLine();
+                        if (input.trim().equals("q")) {
+                            throw new MenuRequestedException();
+                        }
                         System.out.println("Недопустимый формат, попробуйте снова");
                     }
                 }
