@@ -149,7 +149,7 @@ public class Main {
                 double real, im;
                 while (true) {
                     try {
-                        System.out.print("[" + i + "][" + j + "] real im: ");
+                        System.out.print("[" + i + "][" + j + "] (real im): ");
                         real = scanner.nextDouble();
                         im = scanner.nextDouble();
                         break;
