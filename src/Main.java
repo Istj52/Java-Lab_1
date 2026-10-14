@@ -7,27 +7,58 @@ import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Main {
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         while (true) {
             try {
                 Operation operation = askOperation(scanner);
+                Matrix result;
                 switch (operation) {
                     case EXIT: {
                         return;
                     }
                     case DETERMINANT: {
-                        System.out.println("Детерминант = " + executeScalarOperation(scanner));
-                        Thread.sleep(1000);
+                        System.out.println("Детерминант = " + executeScalarOperation(scanner, null));
                         break;
                     }
                     default: {
-                        System.out.println(executeMatrixOperation(scanner, operation));
-                        Thread.sleep(1000);
+                        result = executeMatrixOperation(scanner, operation, null);
+                        System.out.println("Результат:\n" + result);
+                        while (askContinue(scanner)) {
+                            Operation operate = askOperation(scanner);
+                            if (operate == Operation.EXIT) {
+                                return;
+                            }
+                            else if (operate == Operation.DETERMINANT) {
+                                if (result.getRows() == result.getCols()) {
+                                    System.out.println("Детерминант = " + executeScalarOperation(scanner, result));
+                                    break;
+                                }
+                                System.out.println("Матрица должна быть квадратной");
+                                continue;
+                            }
+                            result = executeMatrixOperation(scanner, operate, result);
+                            System.out.println("Результат:\n" + result);
+                        }
+                        break;
                     }
                 }
-            } catch (MenuRequestedException e) {
-                System.out.println("Возврат в главное меню");
+            } catch (MenuRequestedException e) { System.out.println("Возврат в главное меню"); }
+        }
+    }
+
+    private static boolean askContinue(Scanner scanner) {
+        System.out.println("Если вы хотите произвести другую операцию над результатом, введите 1, иначе любое другое целое число");
+        while (true) {
+            try {
+                int input = scanner.nextInt();
+                return input == 1;
+            } catch (InputMismatchException e) {
+                String inpt = scanner.nextLine();
+                if (inpt.trim().equals("q")) {
+                    throw new MenuRequestedException();
+                }
+                System.out.println("Недопустимый Формат, попробуйте снова");
             }
         }
     }
@@ -63,14 +94,14 @@ public class Main {
         }
     }
 
-    private static Matrix executeMatrixOperation(Scanner scanner, Operation operation) {
+    private static Matrix executeMatrixOperation(Scanner scanner, Operation operation, Matrix res) {
         while (true) {
             switch (operation) {
                 case ADDITION: {
-                    int[] dimensionsA = checkMatrixDimensions(scanner, 1);
+                    int[] dimensionsA = res != null ? new int[] {res.getRows(), res.getCols()} :checkMatrixDimensions(scanner, 1);
                     int[] dimensionsB = checkMatrixDimensions(scanner, 2);
                     if (Arrays.equals(dimensionsA, dimensionsB)) {
-                        Matrix a = createMatrix(scanner, dimensionsA[0], dimensionsA[1], 1);
+                        Matrix a = res != null ? res : createMatrix(scanner, dimensionsA[0], dimensionsA[1], 1);
                         Matrix b = createMatrix(scanner, dimensionsB[0], dimensionsB[1], 2);
                         return MatrixMath.add(a, b);
                     }
@@ -78,10 +109,10 @@ public class Main {
                     break;
                 }
                 case MULTIPLICATION: {
-                    int[] dimensionsA = checkMatrixDimensions(scanner, 1);
+                    int[] dimensionsA = res != null ? new int[] {res.getRows(), res.getCols()} :checkMatrixDimensions(scanner, 1);
                     int[] dimensionsB = checkMatrixDimensions(scanner, 2);
                     if (dimensionsA[1] == dimensionsB[0]) {
-                        Matrix a = createMatrix(scanner, dimensionsA[0], dimensionsA[1], 1);
+                        Matrix a = res != null ? res : createMatrix(scanner, dimensionsA[0], dimensionsA[1], 1);
                         Matrix b = createMatrix(scanner, dimensionsB[0], dimensionsB[1], 2);
                         return MatrixMath.mul(a, b);
                     }
@@ -89,10 +120,10 @@ public class Main {
                     break;
                 }
                 case DIVISION: {
-                    int[] dimensionsA = checkMatrixDimensions(scanner, 1);
+                    int[] dimensionsA = res != null ? new int[] {res.getRows(), res.getCols()} :checkMatrixDimensions(scanner, 1);
                     int[] dimensionsB = checkMatrixDimensions(scanner, 2);
                     if (dimensionsA[1] == dimensionsB[0] && dimensionsB[0] == dimensionsB[1]) {
-                        Matrix a = createMatrix(scanner, dimensionsA[0], dimensionsA[1], 1);
+                        Matrix a = res != null ? res : createMatrix(scanner, dimensionsA[0], dimensionsA[1], 1);
                         Matrix b = createMatrix(scanner, dimensionsB[0], dimensionsB[1], 2);
                         return MatrixMath.div(a, b);
                     }
@@ -100,19 +131,19 @@ public class Main {
                     break;
                 }
                 case TRANSPOSE: {
-                    int[] dimensions = checkMatrixDimensions(scanner, 1);
-                    Matrix a = createMatrix(scanner, dimensions[0], dimensions[1], 1);
+                    int[] dimensions = res != null ? new int[] {res.getRows(), res.getCols()} :checkMatrixDimensions(scanner, 1);
+                    Matrix a = res != null ? res : createMatrix(scanner, dimensions[0], dimensions[1], 1);
                     return MatrixMath.transpose(a);
                 }
             }
         }
     }
 
-    private static Complex executeScalarOperation(Scanner scanner) {
+    private static Complex executeScalarOperation(Scanner scanner, Matrix res) {
         while (true) {
-            int[] dimensions = checkMatrixDimensions(scanner, 1);
+            int[] dimensions = res != null ? new int[] {res.getRows(), res.getCols()} :checkMatrixDimensions(scanner, 1);
             if (dimensions[0] == dimensions[1]) {
-                Matrix a = createMatrix(scanner, dimensions[0], dimensions[1], 1);
+                Matrix a = res != null ? res : createMatrix(scanner, dimensions[0], dimensions[1], 1);
                 return MatrixMath.determinant(a);
             }
             System.out.println("Матрица должна быть квадратной");
@@ -148,8 +179,7 @@ public class Main {
                     System.out.println("Недопустимый формат, попробуйте снова");
                 }
             }
-            if (rows > 0 && cols > 0)
-            {
+            if (rows > 0 && cols > 0) {
                 return new int[]{rows, cols};
             }
             else {
