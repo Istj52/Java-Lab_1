@@ -124,8 +124,14 @@ public class Main {
                     int[] dimensionsB = checkMatrixDimensions(scanner, 2);
                     if (dimensionsA[1] == dimensionsB[0] && dimensionsB[0] == dimensionsB[1]) {
                         Matrix a = res != null ? res : createMatrix(scanner, dimensionsA[0], dimensionsA[1], 1);
-                        Matrix b = createMatrix(scanner, dimensionsB[0], dimensionsB[1], 2);
-                        return MatrixMath.div(a, b);
+                        while (true) {
+                            try {
+                                Matrix b = createMatrix(scanner, dimensionsB[0], dimensionsB[1], 2);
+                                return MatrixMath.div(a, b);
+                            } catch (IllegalArgumentException e) {
+                                System.out.println(e.getMessage() + ", попробуйте снова");
+                            }
+                        }
                     }
                     System.out.println("Измерения не позволяют разделить матрицы");
                     break;
