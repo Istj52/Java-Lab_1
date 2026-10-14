@@ -7,7 +7,7 @@ import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         Scanner scanner = new Scanner(System.in);
         while (true) {
             Operation operation = askOperation(scanner);
@@ -17,17 +17,19 @@ public class Main {
                 }
                 case DETERMINANT: {
                     System.out.println("Детерминант = " + executeScalarOperation(scanner));
+                    Thread.sleep(1000);
                     break;
                 }
                 default: {
                     System.out.println(executeMatrixOperation(scanner, operation));
+                    Thread.sleep(1000);
                 }
             }
         }
     }
 
     private enum Operation {
-        EXIT, ADD, MUL, DIV, TRANSPOSE, DETERMINANT
+        EXIT, ADDITION, MULTIPLICATION, DIVISION, TRANSPOSE, DETERMINANT
     }
 
     private static Operation askOperation(Scanner scanner) {
@@ -54,42 +56,42 @@ public class Main {
     private static Matrix executeMatrixOperation(Scanner scanner, Operation operation) {
         while (true) {
             switch (operation) {
-                case ADD: {
-                    int[] dimensionsA = checkMatrixDimensions(scanner);
-                    int[] dimensionsB = checkMatrixDimensions(scanner);
+                case ADDITION: {
+                    int[] dimensionsA = checkMatrixDimensions(scanner, 1);
+                    int[] dimensionsB = checkMatrixDimensions(scanner, 2);
                     if (Arrays.equals(dimensionsA, dimensionsB)) {
-                        Matrix a = createMatrix(scanner, dimensionsA[0], dimensionsA[1]);
-                        Matrix b = createMatrix(scanner, dimensionsB[0], dimensionsB[1]);
+                        Matrix a = createMatrix(scanner, dimensionsA[0], dimensionsA[1], 1);
+                        Matrix b = createMatrix(scanner, dimensionsB[0], dimensionsB[1], 2);
                         return MatrixMath.add(a, b);
                     }
                     System.out.println("Размеры матриц должны совпадать");
                     break;
                 }
-                case MUL: {
-                    int[] dimensionsA = checkMatrixDimensions(scanner);
-                    int[] dimensionsB = checkMatrixDimensions(scanner);
+                case MULTIPLICATION: {
+                    int[] dimensionsA = checkMatrixDimensions(scanner, 1);
+                    int[] dimensionsB = checkMatrixDimensions(scanner, 2);
                     if (dimensionsA[1] == dimensionsB[0]) {
-                        Matrix a = createMatrix(scanner, dimensionsA[0], dimensionsA[1]);
-                        Matrix b = createMatrix(scanner, dimensionsB[0], dimensionsB[1]);
+                        Matrix a = createMatrix(scanner, dimensionsA[0], dimensionsA[1], 1);
+                        Matrix b = createMatrix(scanner, dimensionsB[0], dimensionsB[1], 2);
                         return MatrixMath.mul(a, b);
                     }
                     System.out.println("Измерения не позволяют перемножить матрицы");
                     break;
                 }
-                case DIV: {
-                    int[] dimensionsA = checkMatrixDimensions(scanner);
-                    int[] dimensionsB = checkMatrixDimensions(scanner);
+                case DIVISION: {
+                    int[] dimensionsA = checkMatrixDimensions(scanner, 1);
+                    int[] dimensionsB = checkMatrixDimensions(scanner, 2);
                     if (dimensionsA[1] == dimensionsB[0] && dimensionsB[0] == dimensionsB[1]) {
-                        Matrix a = createMatrix(scanner, dimensionsA[0], dimensionsA[1]);
-                        Matrix b = createMatrix(scanner, dimensionsB[0], dimensionsB[1]);
+                        Matrix a = createMatrix(scanner, dimensionsA[0], dimensionsA[1], 1);
+                        Matrix b = createMatrix(scanner, dimensionsB[0], dimensionsB[1], 2);
                         return MatrixMath.div(a, b);
                     }
                     System.out.println("Измерения не позволяют разделить матрицы");
                     break;
                 }
                 case TRANSPOSE: {
-                    int[] dimensions = checkMatrixDimensions(scanner);
-                    Matrix a = createMatrix(scanner, dimensions[0], dimensions[1]);
+                    int[] dimensions = checkMatrixDimensions(scanner, 1);
+                    Matrix a = createMatrix(scanner, dimensions[0], dimensions[1], 1);
                     return MatrixMath.transpose(a);
                 }
             }
@@ -98,19 +100,19 @@ public class Main {
 
     private static Complex executeScalarOperation(Scanner scanner) {
         while (true) {
-            int[] dimensions = checkMatrixDimensions(scanner);
+            int[] dimensions = checkMatrixDimensions(scanner, 1);
             if (dimensions[0] == dimensions[1]) {
-                Matrix a = createMatrix(scanner, dimensions[0], dimensions[1]);
+                Matrix a = createMatrix(scanner, dimensions[0], dimensions[1], 1);
                 return MatrixMath.determinant(a);
             }
             System.out.println("Матрица должна быть квадратной");
         }
     }
-    private static int[] checkMatrixDimensions(Scanner scanner) {
+    private static int[] checkMatrixDimensions(Scanner scanner, int n) {
         while (true) {
             int rows;
             while (true) {
-                System.out.print("Введите количество строк: ");
+                System.out.print("Введите количество строк " + n + " матрицы: ");
                 try {
                     rows = scanner.nextInt();
                     break;
@@ -121,7 +123,7 @@ public class Main {
             }
             int cols;
             while (true) {
-                System.out.print("Введите количество столбцов: ");
+                System.out.print("Введите количество столбцов " + n + " матрицы: ");
                 try {
                     cols = scanner.nextInt();
                     break;
@@ -139,9 +141,9 @@ public class Main {
             }
         }
     }
-    private static Matrix createMatrix(Scanner scanner, int rows, int cols) {
+    private static Matrix createMatrix(Scanner scanner, int rows, int cols, int n) {
         Matrix m = new Matrix(rows, cols);
-        System.out.println("Введите элементы матрицы:");
+        System.out.println("Введите элементы " + n + " матрицы: ");
         for (int i = 0; i < rows; ++i) {
             for (int j = 0; j < cols; ++j) {
                 double real, im;
